@@ -13,7 +13,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { searchProduct, normalizeSearchText } from '@/utils/searchUtils';
-import { productMatchesMaterialCategory, getCategoryDisplayName } from '@/utils/materialCategories';
 
 export default function ProductsPage() {
   const { data: products = [], isLoading } = useProductsQuery();
@@ -62,12 +61,20 @@ export default function ProductsPage() {
       );
     }
 
-    // Material filter - CATEGORY-BASED MATCHING
+    // Material filter - SIMPLE MATCHING
     if (selectedMaterials.length > 0) {
       result = result.filter((p) =>
-        selectedMaterials.some((selectedCategory) =>
-          productMatchesMaterialCategory(p.materials, selectedCategory)
-        )
+        p.materials.some((material) => {
+          const normalizedProductMaterial = normalizeSearchText(material);
+          return selectedMaterials.some((selectedMaterial) => {
+            const normalizedSelectedMaterial = normalizeSearchText(selectedMaterial);
+            return (
+              normalizedProductMaterial === normalizedSelectedMaterial ||
+              normalizedProductMaterial.includes(normalizedSelectedMaterial) ||
+              normalizedSelectedMaterial.includes(normalizedProductMaterial)
+            );
+          });
+        })
       );
     }
 
@@ -142,12 +149,7 @@ export default function ProductsPage() {
     <>
       <Helmet>
         <title>{language === 'el' ? 'Προϊόντα | PROBAGNO - Έπιπλα Μπάνιου' : 'Products | PROBAGNO - Bathroom Furniture'}</title>
-        <meta
-          name="description"
-          content={language === 'el' 
-            ? 'Εξερευνήστε την πλήρη συλλογή επίπλων μπάνιου PROBAGNO. Νιπτήρες, καθρέπτες, ντουλάπια και αξεσουάρ υψηλής ποιότητας.'
-            : 'Explore the complete PROBAGNO bathroom furniture collection. High-quality sinks, mirrors, cabinets and accessories.'}
-        />
+        <meta name="description" content={language === 'el' ? 'Εξερευνήστε την πλήρη συλλογή επίπλων μπάνιου PROBAGNO. Νιπτήρες, καθρέπτες, ντουλάπια και αξεσουάρ υψηλής ποιότητας.' : 'Explore the complete PROBAGNO bathroom furniture collection. High-quality sinks, mirrors, cabinets and accessories.'} />
       </Helmet>
       <Layout>
         <section className="pt-8 pb-8 sm:pt-12 sm:pb-12 bg-gradient-to-b from-muted/50 to-background">
@@ -166,20 +168,13 @@ export default function ProductsPage() {
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder={language === 'el' ? 'Αναζήτηση προϊόντων...' : 'Search products...'} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11 h-11 sm:h-12 rounded-xl text-base" />
-                  <AnimatePresence>
-                    {search && <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"><X className="w-3 h-3 text-muted-foreground" /></motion.button>}
-                  </AnimatePresence>
+                  <AnimatePresence>{search && <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"><X className="w-3 h-3 text-muted-foreground" /></motion.button>}</AnimatePresence>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3">
                   <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" className="lg:hidden gap-2 h-11 sm:h-12 rounded-xl flex-1 sm:flex-none relative"><Filter className="w-4 h-4" /><span>{t('products.filter')}</span>
-                        {activeFilterCount > 0 && <Badge variant="default" className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">{activeFilterCount}</Badge>}
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-[85%] sm:w-[380px] overflow-y-auto">
-                      <SheetHeader><SheetTitle className="text-left flex items-center gap-2"><SlidersHorizontal className="w-5 h-5" />{language === 'el' ? 'Φίλτρα Προϊόντων' : 'Product Filters'}</SheetTitle></SheetHeader>
+                    <SheetTrigger asChild><Button variant="outline" className="lg:hidden gap-2 h-11 sm:h-12 rounded-xl flex-1 sm:flex-none relative"><Filter className="w-4 h-4" /><span>{t('products.filter')}</span>{activeFilterCount > 0 && <Badge variant="default" className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">{activeFilterCount}</Badge>}</Button></SheetTrigger>
+                    <SheetContent side="left" className="w-[85%] sm:w-[380px] overflow-y-auto"><SheetHeader><SheetTitle className="text-left flex items-center gap-2"><SlidersHorizontal className="w-5 h-5" />{language === 'el' ? 'Φίλτρα Προϊόντων' : 'Product Filters'}</SheetTitle></SheetHeader>
                       <div className="mt-6"><ProductFilters products={searchAndCategoryFiltered} categories={categories} selectedCategories={selectedCategories} selectedColors={selectedColors} selectedMaterials={selectedMaterials} priceRange={priceRange} maxPrice={maxPrice} onCategoryChange={toggleCategory} onColorChange={toggleColor} onMaterialChange={toggleMaterial} onPriceChange={setPriceRange} onClearFilters={clearFilters} hasFilters={hasFilters} /></div>
                       <div className="sticky bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t mt-6 -mx-6 -mb-6"><Button className="w-full h-12 rounded-xl" onClick={() => setMobileFiltersOpen(false)}>{language === 'el' ? `Εμφάνιση ${filteredProducts.length} Προϊόντων` : `Show ${filteredProducts.length} Products`}</Button></div>
                     </SheetContent>
@@ -187,11 +182,7 @@ export default function ProductsPage() {
 
                   <div className="relative flex-1 sm:flex-none">
                     <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="h-11 sm:h-12 w-full sm:w-auto px-4 pr-10 rounded-xl border border-input bg-background text-sm font-medium appearance-none cursor-pointer focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">
-                      <option value="featured">{language === 'el' ? 'Προτεινόμενα' : 'Featured'}</option>
-                      <option value="newest">{t('products.sort.newest')}</option>
-                      <option value="price-asc">{language === 'el' ? 'Τιμή ↑' : 'Price ↑'}</option>
-                      <option value="price-desc">{language === 'el' ? 'Τιμή ↓' : 'Price ↓'}</option>
-                      <option value="name">{t('products.sort.name')}</option>
+                      <option value="featured">{language === 'el' ? 'Προτεινόμενα' : 'Featured'}</option><option value="newest">{t('products.sort.newest')}</option><option value="price-asc">{language === 'el' ? 'Τιμή ↑' : 'Price ↑'}</option><option value="price-desc">{language === 'el' ? 'Τιμή ↓' : 'Price ↓'}</option><option value="name">{t('products.sort.name')}</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
@@ -204,44 +195,25 @@ export default function ProductsPage() {
               </div>
 
               <AnimatePresence>
-                {hasFilters && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="lg:hidden flex flex-wrap gap-2">
-                    {selectedCategories.map((slug) => { const cat = categories.find((c) => c.slug === slug); return <Badge key={slug} variant="secondary" className="gap-1.5 pr-1.5 cursor-pointer" onClick={() => toggleCategory(slug)}>{cat?.name || slug}<X className="w-3 h-3" /></Badge>; })}
-                    {selectedColors.length > 0 && <Badge variant="secondary" className="gap-1">{selectedColors.length} {language === 'el' ? 'χρώματα' : 'colors'}<X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedColors([])} /></Badge>}
-                    {selectedMaterials.length > 0 && <Badge variant="secondary" className="gap-1">{selectedMaterials.length} {language === 'el' ? 'υλικά' : 'materials'}<X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedMaterials([])} /></Badge>}
-                    {(priceRange[0] > 0 || priceRange[1] < maxPrice) && <Badge variant="secondary" className="gap-1">€{priceRange[0]}-€{priceRange[1]}<X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, maxPrice])} /></Badge>}
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearFilters}>{language === 'el' ? 'Καθαρισμός' : 'Clear'}</Button>
-                  </motion.div>
-                )}
+                {hasFilters && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="lg:hidden flex flex-wrap gap-2">
+                  {selectedCategories.map((slug) => { const cat = categories.find((c) => c.slug === slug); return <Badge key={slug} variant="secondary" className="gap-1.5 pr-1.5 cursor-pointer" onClick={() => toggleCategory(slug)}>{cat?.name || slug}<X className="w-3 h-3" /></Badge>; })}
+                  {selectedColors.length > 0 && <Badge variant="secondary" className="gap-1">{selectedColors.length} {language === 'el' ? 'χρώματα' : 'colors'}<X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedColors([])} /></Badge>}
+                  {selectedMaterials.length > 0 && <Badge variant="secondary" className="gap-1">{selectedMaterials.length} {language === 'el' ? 'υλικά' : 'materials'}<X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedMaterials([])} /></Badge>}
+                  {(priceRange[0] > 0 || priceRange[1] < maxPrice) && <Badge variant="secondary" className="gap-1">€{priceRange[0]}-€{priceRange[1]}<X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, maxPrice])} /></Badge>}
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearFilters}>{language === 'el' ? 'Καθαρισμός' : 'Clear'}</Button>
+                </motion.div>}
               </AnimatePresence>
             </motion.div>
 
             <div className="flex gap-6 lg:gap-10">
-              <aside className="hidden lg:block w-72 flex-shrink-0">
-                <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent pr-2">
-                  <ProductFilters products={searchAndCategoryFiltered} categories={categories} selectedCategories={selectedCategories} selectedColors={selectedColors} selectedMaterials={selectedMaterials} priceRange={priceRange} maxPrice={maxPrice} onCategoryChange={toggleCategory} onColorChange={toggleColor} onMaterialChange={toggleMaterial} onPriceChange={setPriceRange} onClearFilters={clearFilters} hasFilters={hasFilters} />
-                </div>
-              </aside>
+              <aside className="hidden lg:block w-72 flex-shrink-0"><div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent pr-2"><ProductFilters products={searchAndCategoryFiltered} categories={categories} selectedCategories={selectedCategories} selectedColors={selectedColors} selectedMaterials={selectedMaterials} priceRange={priceRange} maxPrice={maxPrice} onCategoryChange={toggleCategory} onColorChange={toggleColor} onMaterialChange={toggleMaterial} onPriceChange={setPriceRange} onClearFilters={clearFilters} hasFilters={hasFilters} /></div></aside>
 
               <div className="flex-1 min-w-0">
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-between mb-4 sm:mb-6">
                   <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{filteredProducts.length}</span>{' '}{language === 'el' ? (filteredProducts.length === 1 ? 'προϊόν' : 'προϊόντα') : (filteredProducts.length === 1 ? 'product' : 'products')}{hasFilters && (language === 'el' ? ' (φιλτραρισμένα)' : ' (filtered)')}</p>
                 </motion.div>
 
-                {isLoading ? (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{[...Array(6)].map((_, i) => <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}</div>
-                ) : filteredProducts.length === 0 ? (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center"><Search className="w-8 h-8 text-muted-foreground" /></div>
-                    <h3 className="font-display text-xl font-semibold mb-2">{t('products.noResults')}</h3>
-                    <p className="text-muted-foreground mb-6">{language === 'el' ? 'Δοκιμάστε να αλλάξετε τα φίλτρα σας' : 'Try changing your filters'}</p>
-                    <Button variant="outline" onClick={clearFilters}>{t('products.clearFilters')}</Button>
-                  </motion.div>
-                ) : (
-                  <div className={cn('grid gap-4 sm:gap-6', gridCols === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3')}>
-                    {filteredProducts.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}
-                  </div>
-                )}
+                {isLoading ? <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{[...Array(6)].map((_, i) => <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}</div> : filteredProducts.length === 0 ? <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16"><div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center"><Search className="w-8 h-8 text-muted-foreground" /></div><h3 className="font-display text-xl font-semibold mb-2">{t('products.noResults')}</h3><p className="text-muted-foreground mb-6">{language === 'el' ? 'Δοκιμάστε να αλλάξετε τα φίλτρα σας' : 'Try changing your filters'}</p><Button variant="outline" onClick={clearFilters}>{t('products.clearFilters')}</Button></motion.div> : <div className={cn('grid gap-4 sm:gap-6', gridCols === 2 ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-3')}>{filteredProducts.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}</div>}
               </div>
             </div>
           </div>
