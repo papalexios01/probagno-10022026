@@ -1,10 +1,38 @@
+/**
+ * SOTA Enterprise-Grade Product Variant System
+ * Enhanced ProductDimension with variant-specific attributes
+ * Supports: color-based images, per-variant materials/features, bilingual content
+ */
+
+// Enhanced ProductDimension - now includes variant-specific attributes
 export interface ProductDimension {
   id: string;
+  sku: string;
+  
+  // Physical dimensions
   width: number;
   height: number;
   depth: number;
   price: number;
-  sku: string;
+  
+  // Variant-specific image (shown when this variant is selected)
+  image?: string;
+  
+  // Color for this specific variant
+  color?: string;        // Greek color name
+  colorEn?: string;      // English color name  
+  colorHex?: string;     // Hex code for color swatch display
+  
+  // Variant-specific materials
+  materials?: string[];      // Greek
+  materialsEn?: string[];    // English
+  
+  // Variant-specific features/characteristics
+  features?: string[];       // Greek
+  featuresEn?: string[];     // English
+  
+  // Stock status for this variant
+  inStock?: boolean;
 }
 
 export interface ProductImage {
@@ -28,9 +56,19 @@ export interface Product {
   salePrice?: number;
   images: ProductImage[];
   dimensions: ProductDimension[];
+  
+  // Default materials (fallback when no variant selected)
   materials: string[];
+  materialsEn?: string[];    // English materials
+  
+  // Default colors (fallback when no variant selected)  
   colors: string[];
+  colorsEn?: string[];       // English colors
+  
+  // Default features (fallback when no variant selected)
   features: string[];
+  featuresEn?: string[];     // English features
+  
   inStock: boolean;
   featured: boolean;
   bestSeller: boolean;
@@ -46,25 +84,4 @@ export interface Category {
   description?: string;
   image?: string;
   productCount: number;
-}
-
-export interface CartItem {
-  productId: string;
-  product: Product;
-  dimensionId: string;
-  dimension: ProductDimension;
-  quantity: number;
-}
-
-export interface Order {
-  id: string;
-  items: CartItem[];
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  shippingAddress: string;
-  notes?: string;
-  createdAt: string;
 }
