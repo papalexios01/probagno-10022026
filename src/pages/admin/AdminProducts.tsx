@@ -721,7 +721,7 @@ function ProductEditDialog({ product, categories, open, onClose, onSave, isLoadi
                 value={formData.salePrice || ''}
                 onChange={(e) => setFormData({ ...formData, salePrice: e.target.value === '' ? undefined : Number(e.target.value)|| undefined })}         
                   
-                                                                                                           ) })}
+                                                                                                
                 placeholder="Προαιρετικό"
               />
             </div>
