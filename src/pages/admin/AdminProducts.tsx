@@ -719,7 +719,8 @@ function ProductEditDialog({ product, categories, open, onClose, onSave, isLoadi
               <Input
                 type="number"
                 value={formData.salePrice || ''}
-                onChange={(e) => setFormData({ ...formData, salePrice: Number(e.target.value) || undefined })}
+                onChange={(e) => setFormData({ ...formData, salePrice: e.target.value === '' ? undefined : (722
+                                                                                                           ) })}
                 placeholder="Προαιρετικό"
               />
             </div>
