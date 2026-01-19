@@ -719,7 +719,7 @@ function ProductEditDialog({ product, categories, open, onClose, onSave, isLoadi
               <Input
                 type="number"
                 value={formData.salePrice || ''}
-                onChange={(e) => setFormData({ ...formData, salePrice: e.target.value === '' ? undefined : Number(e.target.value) || undefine
+                onChange={(e) => setFormData({ ...formData, salePrice: e.target.value === '' ? undefined : Number(e.target.value)|| undefined })}         
                   
                                                                                                            ) })}
                 placeholder="Προαιρετικό"
