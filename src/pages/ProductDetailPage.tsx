@@ -188,9 +188,7 @@ export default function ProductDetailPage() {
               <p className="text-muted-foreground">{productDescription}</p>
 
               {/* Dimensions Selector */}
-              {66
-      .length > 1 && (
-              <div>                <h3 className="font-medium mb-3">{t('product.selectDimensions')}</h3>
+            {validDimensions.length > 1 && (              <div>                <h3 className="font-medium mb-3">{t('product.selectDimensions')}</h3>
                 <RadioGroup value={selectedDimensionId} onValueChange={setSelectedDimensionId}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {validDimensions.map((dim) => (                      <div key={dim.id}>
