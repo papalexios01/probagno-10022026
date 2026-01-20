@@ -219,7 +219,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Quantity & Add to Cart */}
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-4 pt-4" style={{ display: 'none' }}>
                 <div className="flex items-center border border-input rounded-md">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
