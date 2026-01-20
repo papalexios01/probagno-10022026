@@ -218,6 +218,27 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
+              {/* Quantity & Add to Cart */}
+              <div className="flex items-center gap-4 pt-4">
+                <div className="flex items-center border border-input rounded-md">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-4 py-2 hover:bg-muted transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-2 min-w-[50px] text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="px-4 py-2 hover:bg-muted transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+                <Button onClick={handleAddToCart} size="lg" className="flex-1 gap-2">
+                  <ShoppingBag className="w-5 h-5" />
+                  {t('product.addToCart')}
+                </Button>
                 <Button variant="outline" size="lg" className="px-4">
                   <Heart className="w-5 h-5" />
                 </Button>
@@ -307,6 +328,6 @@ export default function ProductDetailPage() {
           )}
         </section>
       </Layout>
-              </>
+    </>
   );
 }
