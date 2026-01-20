@@ -58,6 +58,11 @@ export default function ProductDetailPage() {
   const productDescription = language === 'en' && product.descriptionEn ? product.descriptionEn : product.description;
   const selectedDimension = product.dimensions.find((d) => d.id === selectedDimensionId) || product.dimensions[0];
 
+    // Filter out dimensions with 0x0x0 values (meaningless dimensions)
+    const validDimensions = product.dimensions.filter(
+          (d) => d.width !== 0 || d.height !== 0 || d.depth !== 0
+              );
+
   const displayPrice = product.salePrice || selectedDimension.price;
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
 
@@ -176,7 +181,7 @@ export default function ProductDetailPage() {
               <p className="text-muted-foreground">{productDescription}</p>
 
               {/* Dimensions Selector */}
-              {product.dimensions.length > 1 && (
+              {validDimensions.length > 1 && (
               <div>                <h3 className="font-medium mb-3">{t('product.selectDimensions')}</h3>
                 <RadioGroup value={selectedDimensionId} onValueChange={setSelectedDimensionId}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
