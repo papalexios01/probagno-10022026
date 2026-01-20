@@ -65,7 +65,7 @@ export default function ProductDetailPage() {
       (dim) => dim.width > 0 || dim.height > 0 || dim.depth > 0 || dim.price > 0
     );
   }, [product]);
-  const displayPrice = product.salePrice || selectedDimension.price;
+  const displayPrice = product.salePrice || selectedDimension?.price || 0;
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
 
   const handleAddToCart = () => {
