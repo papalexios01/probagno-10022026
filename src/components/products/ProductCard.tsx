@@ -129,7 +129,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
 
           {/* Quick Actions - Desktop */}
-          <motion.div
+          <motion.div style={{ display: 'none' }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 30 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -142,7 +142,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             >
               <ShoppingBag className="w-4 h-4" />
               {language === 'el' ? 'Προσθήκη' : 'Add'}
-            </Button>
+            </Button style={{ display: 'none' }}>
             <Button size="sm" variant="secondary" className="px-3 rounded-xl h-11 shadow-lg bg-background/90 backdrop-blur-sm">
               <Eye className="w-4 h-4" />
             </Button>
