@@ -42,6 +42,15 @@ export interface ProductImage {
   isPrimary: boolean;
 }
 
+// Color variant with associated image for color swatch display
+export interface ColorVariant {
+  id: string;
+  color: string;        // Greek color name
+  colorEn?: string;     // English color name
+  colorHex?: string;    // Hex code for color swatch (e.g., #FFFFFF)
+  image?: string;       // Image URL for this color variant
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -68,6 +77,7 @@ export interface Product {
   // Default features (fallback when no variant selected)
   features: string[];
   featuresEn?: string[];     // English features
+    colorVariants?: ColorVariant[];  // Color variants with images
   
   inStock: boolean;
   featured: boolean;
